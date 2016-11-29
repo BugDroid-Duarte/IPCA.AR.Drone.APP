@@ -1,5 +1,5 @@
-# Parrot AR Drone SDK v2.0.1 - ENHANCED
-Parrot's official AR.Drone SDK 2.0.1, now up-to-date to work with Android Studio.
+# Aplicação AR Drone
+Sources da aplicação android do parrot AR.Drone, esta aplicação será usada para estudos e testes, onde vamos modificar codigo para perceber o funcionamento da aplicação.
 
 ## Why this repo?
 
@@ -16,7 +16,3 @@ The Parrot SDK was based on this deprecated build system and we need an updated 
 
 **This repository aims at making the Parrot AR Drone 2.0 SDK widely available again.
 It is primarily for Android developers.
-It contains the source files for the SDK, and the Parrot FreeFlight sample app as an Android Studio project.**
-
-
-Feel free to share it around!

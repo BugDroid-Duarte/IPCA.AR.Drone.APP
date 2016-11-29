@@ -1,0 +1,79 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+apply plugin: 'com.android.application'
+
+android {
+    useLibrary 'org.apache.http.legacy'
+    compileSdkVersion 24
+    buildToolsVersion '24.0.1'
+
+    defaultConfig {
+        multiDexEnabled true
+        applicationId "com.parrot.freeflight"
+        minSdkVersion 15
+        targetSdkVersion 24
+        versionCode 20000
+        versionName "2.0-SDK"
+
+        ndk {
+            moduleName "adfreeflight"
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            // TODO proguard-rules seem outdated and useless cause it's only Android stuff
+        }
+    }
+    sourceSets.main {
+        jni.srcDirs = [] // This prevents the auto generation of Android.mk
+        jniLibs.srcDir 'src/main/libs'
+        // This is not necessary unless you have precompiled libraries in your project.
+    }
+
+    task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
+        def ndkCommand = "${android.ndkDirectory}/ndk-build"
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            ndkCommand += ".cmd"
+        }
+
+        commandLine ndkCommand,
+                '-C', file('src/main/jni').absolutePath,
+                '-j', Runtime.runtime.availableProcessors(),
+                '-B',
+                '-v',
+                'all',
+                'NDK_DEBUG=1'
+    }
+
+    task cleanNative(type: Exec, description: 'Clean JNI object files') {
+        def ndkCommand = "${android.ndkDirectory}/ndk-build"
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            ndkCommand += ".cmd"
+        }
+
+        commandLine ndkCommand,
+                '-C', file('src/main/jni').absolutePath,
+                'clean'
+    }
+
+    clean.dependsOn 'cleanNative'
+
+    tasks.withType(JavaCompile) {
+        compileTask -> compileTask.dependsOn buildNative
+    }
+}
+
+configurations {
+    all*.exclude group: 'com.android.support', module: 'support-v4'
+}
+
+dependencies {
+    compile fileTree(include: ['*.jar'], dir: 'libs')
+    compile 'com.android.support:support-v4:24.0.0'
+    compile 'com.android.support:appcompat-v7:24.0.0'
+    compile files('libs/com.sony.rdis.receiver-20111206.jar')
+    compile files('libs/com.sony.rdis.receiver.utility-20111206.jar')
+}
